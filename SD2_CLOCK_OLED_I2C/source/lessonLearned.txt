@@ -1,0 +1,16 @@
+Dificultades que encontramos
+-Display SPI:
+Tuvimos problemas para hacer andar el display en un principio.
+Diagnosticando nos encontramos que sin darnos cuenta habiamos intercambiado SCK con MOSI, por esta razon no funcionaba el ejemplo de clase.
+Para mostrar valores numericos en el display, como la funcion requiere que le pasemos un String teniamos que convertir el entero a char*.
+Esto nos trajo error de HARDFAULT en ejecucion, ya que en principio declaramos la variable como un solo char y no como un array con suficiente largo.
+A veces nos encontramos que si moviamos los cables que conectan el display con la placa de desarrollo mientras enviamos datos al display, el display empezaba a mostrar basura, se corrian los caracteres de "renglon" o se giraba 180` la pantalla.
+Resulto ser una falla de conexion en los pines CS y DATA/CMD.
+
+-Acelerometro I2C:
+Para configurar el acelerometro que interrumpa con el evento caida libre tuvimos que tomar la nota de aplicacion y crear nuevas estructuras para cada registro a escribir, luego de esto agregar al IRQ handler para que capture la interrupcion y guarde un evento que luego sera tomado en otra parte del codigo.
+
+Para detectar el valor maximo de aceleracion, en lugar de leer continuamente los valores del dispositivo, podriamos haberlo configurado en modo TRANSIENT DETECTION y confiugrar una interrupcion segun la nota de aplicacion AN4071. Si bien este no es el proposito de esta funcion, se usa para detectar pasos y sacudones, podriamos intepretar el "choque" contra el piso como una deteccion de paso.
+
+Durante la caida, si configuramos el acelerometro a 800Hz, nos da una nueva lectura cada 1.25ms, mientras que leer todos esos datos nos lleva 1.7ms por lo tanto es demasiado rapido.
+Elegimos 400Hz que nos da 2.5ms entre datos asi tenemos tiempo de procesarlos.
